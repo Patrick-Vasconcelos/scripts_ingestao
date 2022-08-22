@@ -8,9 +8,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-token.txt
-profissionais.json
-Profissionais.xlsx
+*.txt
+*.json
+*.xlsx
 credentials.py
 Agendamentos/
 build/
