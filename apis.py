@@ -1,12 +1,9 @@
-from abc import ABC,  abstractmethod
-import os
+
+
+from datetime import datetime
 import requests
+from abc import abstractmethod, ABC
 import logging
-from credentials import username, password
-import json
-from datetime import timedelta,date
-import datetime
-import pandas as pd
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -117,44 +114,8 @@ class GetProfissional(ClinicWebApi):
         else:
             return f"{self.base_endpoint}/profissionais/?term={term}&codEmpresa={codEmpresa}"
 
-
-class DataWriter:
-    def __init__(self, api: str) -> None:
-        self.filename = f"{api}/{date.today() - timedelta(days=1)}.json"
-    
-    def _write_row(self, row: str) -> None:
-        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
-        with open(self.filename, "a") as f:
-            f.write(row)
-    
-    def write(self, data) -> None:
-        if isinstance(data, dict):
-            self._write_row(json.dumps(data) + "\n")
-        elif isinstance(data, list):
-            for element in data:
-                self.write(element)
-        else:
-            pass
-    
-    def write_excel(self, data: dict) -> None:
-        if isinstance(data, dict):
-            df = pd.json_normalize(data=data)
-            df.to_excel(f'{self.filename}.xlsx', index=False)
-        
-        elif isinstance(data, list):
-            df = pd.DataFrame()
-            for element in data:
-                df_ = pd.json_normalize(data=element)
-                df = pd.concat([df_, df], ignore_index=True)
-            df.to_excel(f'{self.filename}.xlsx', index=False)
-        
-        else:
-            pass
-        
-
-
 class GetAgendamento(ClinicWebApi):
-
+    
     def _get_endpoint(self, startDate: datetime.date = None , endDate: datetime.date = None, codEmpresa: str = 10177, page:str = 1, codProfissionais: str = None) -> str:
         if endDate == None  and codProfissionais == None:
             return f"{self.base_endpoint}/agendamentos?codEmpresa={codEmpresa}&startDate={startDate}&$page={page}"
@@ -183,40 +144,3 @@ class GetAgendamento(ClinicWebApi):
         page, pages, data = self._get_pages(response)
         return page, pages, data
 
-
-class DataIngestor(ABC):
-    def __init__(self, writer, **kwargs) -> None:
-        self.writer = writer
-        pass
-
-    @abstractmethod
-    def ingest(self) -> None:
-        pass
-        
-
-class AgendamentoIngestor(DataIngestor):
-    def __init__(self, writer: DataWriter, startDate: datetime.date = None , endDate: datetime.date = None, codEmpresa: str = 10177, page:str = 1, codProfissionais: str = None, **kwargs) -> None:
-        super().__init__(writer, **kwargs)
-        self.startDate = startDate
-        self.endDate = endDate
-        self.codEmpresa = codEmpresa
-        self.page = page
-        self.codProfissionais = codProfissionais
-        self.writer = writer
-    
-
-    def ingest(self) -> None:
-        token = GetToken().get_token(username=username, password=password)
-
-        while True:
-            self.page,pages,api = GetAgendamento().get_data(token=token, startDate=self.startDate, endDate=self.endDate, page=self.page, codProfissionais=self.codProfissionais)
-            self.writer(api='Agendamentos').write(api)
-
-            if self.page >= pages:
-                break
-            self.page += 1
-
-
-agendamento_ingestor = AgendamentoIngestor(writer=DataWriter,startDate=datetime.date(2022,8,17), endDate=datetime.date(2022,8,17))
-# agendamento_ingestor = AgendamentoIngestor(writer=DataWriter,startDate=datetime.date(2022,8,18))
-agendamento_ingestor.ingest()
