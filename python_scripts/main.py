@@ -1,7 +1,7 @@
 from datetime import timedelta,date
 import datetime
-from ingestors import AgendamentoIngestor
-from writers import DataWriter
+from python_scripts.ingestors import AgendamentoIngestor
+from python_scripts.writers import DataWriter
 
 
 

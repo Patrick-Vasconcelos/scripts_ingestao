@@ -1,12 +1,11 @@
-version: '3'
-
+version: "3"
 services:
       jenkins:
-      image: pyjenkins
-      container_name: "jenkins_agendador"
-      ports:
-          - "8000:8080"
-          - "50000:50000"
-      volumes:
-          - "./jenkins_home:/var/jenkins_home"
-          - "./"
+        image: pyjenkins
+        container_name: "jenkins_agendador"
+        ports:
+            - "8000:8080"
+            - "50000:50000"
+        volumes:
+            - "./jenkins_home:/var/jenkins_home"
+            - "./python_scripts:/python_scripts"

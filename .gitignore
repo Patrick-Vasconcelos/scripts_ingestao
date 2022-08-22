@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+jenkins_home/
 
 # Distribution / packaging
 .Python
