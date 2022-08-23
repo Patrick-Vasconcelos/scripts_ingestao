@@ -9,7 +9,7 @@ jenkins_home/
 
 # Distribution / packaging
 .Python
-*.txt
+token.txt
 *.json
 *.xlsx
 credentials.py

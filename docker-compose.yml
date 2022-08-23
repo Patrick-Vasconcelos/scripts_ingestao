@@ -9,3 +9,4 @@ services:
         volumes:
             - "./jenkins_home:/var/jenkins_home"
             - "./python_scripts:/python_scripts"
+# 408ac5bd232f4d8fb04c86d0885ec12f
