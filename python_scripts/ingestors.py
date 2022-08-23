@@ -1,9 +1,9 @@
-from python_scripts.credentials import username, password
+from credentials import username, password
 from abc import abstractmethod,ABC
 from datetime import datetime
-from python_scripts.apis import GetAgendamento, GetToken
+from apis import GetAgendamento, GetToken
 
-from python_scripts.writers import DataWriter
+from writers import DataWriter
 
 
 class DataIngestor(ABC):
