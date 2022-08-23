@@ -1,5 +1,3 @@
-
-
 from datetime import date,timedelta
 import json
 import os

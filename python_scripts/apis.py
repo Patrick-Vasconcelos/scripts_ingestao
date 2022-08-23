@@ -1,5 +1,3 @@
-
-
 from datetime import datetime
 import requests
 from abc import abstractmethod, ABC
@@ -115,6 +113,18 @@ class GetProfissional(ClinicWebApi):
             return f"{self.base_endpoint}/profissionais/?term={term}&codEmpresa={codEmpresa}"
 
 class GetAgendamento(ClinicWebApi):
+    """
+    Classe para buscar lista de agendamentos, a partir de uma data de inicio, data final, pagina, lista de profissionais
+
+    Métodos:
+        _get_endpoint -> metodo abstrato herdade de clinicwebapi para obert endpoint
+        _get_pages -> metodo para buscar quantidade de paginas presentes na consulta
+        get_data -> sobrescrita do metodo get_data da classe mae
+    Returns:
+        _get_endpoint (str) -> endpoint
+        _get_pages (int) (int) (str) -> pagina atual, quantidade de paginas, dados da consulta
+
+    """
     
     def _get_endpoint(self, startDate: datetime.date = None , endDate: datetime.date = None, codEmpresa: str = 10177, page:str = 1, codProfissionais: str = None) -> str:
         if endDate == None  and codProfissionais == None:
