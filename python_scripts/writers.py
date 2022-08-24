@@ -25,14 +25,14 @@ class DataWriter:
     def write_excel(self, data: dict) -> None:
         if isinstance(data, dict):
             df = pd.json_normalize(data=data)
-            df.to_excel(f'{self.filename}.xlsx', index=False)
+            df.to_excel(f'agendamentos.xlsx', index=False)
         
         elif isinstance(data, list):
             df = pd.DataFrame()
             for element in data:
                 df_ = pd.json_normalize(data=element)
                 df = pd.concat([df_, df], ignore_index=True)
-            df.to_excel(f'{self.filename}.xlsx', index=False)
+            df.to_excel(f'agendamentos.xlsx', index=False)
         
         else:
             pass
