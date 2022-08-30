@@ -24,7 +24,7 @@ class Crawler(ABC):
         self.url = 'https://clinicweb.vitta.me/clinicweb/login.jsp'
     
     def timer(self) -> None:
-        time.sleep(3)
+        time.sleep(5)
     
     
     def clicarXpath(self, xpath: str, msg : str = None) -> None:
@@ -87,14 +87,15 @@ class CrawlerConsulta(Crawler):
         self.clicarXpath(xpath='//*[@id="containerFooter"]/div/div/a/span', msg='Clicando em gerar relatório')
         self.driver.switch_to.window(self.driver.window_handles[1])
         
-        self.page_content = self.driver.page_source
-        
+        df = pd.read_html(self.driver.page_source)
 
+        df.head()
+        
+        
+       
+        """
         dados_consultas = []
         site = bs(self.page_content, 'html.parser')
-        
-        
-
         site = site.find('table')     
         consultas = site.find_all('tr')
 
@@ -103,7 +104,7 @@ class CrawlerConsulta(Crawler):
             for row in rows:
                 print(row.text)
 
-        """
+        
         df = pd.DataFrame(columns= ['Empresa', 'Data de Registro' , 'Hora de Registro',
                             'Data', 'Hora', 'Paciente', 'Carteirinha', 'CPF do Paciente',
                             'Dmed gerado', 'Pagador', 'Executante', 'Solicitante', 'Qtde',
@@ -114,7 +115,4 @@ class CrawlerConsulta(Crawler):
                             'Observação (Faturamento)', 'Observação (Pagamento)'])
         for row in consulta.tbody.find_all('tr'):
             columns = row.find_all('td')
-
-            if(columns != []):
-
-        """
+        """   
