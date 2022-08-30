@@ -6,9 +6,13 @@ __pycache__/
 # C extensions
 *.so
 jenkins_home/
+<<<<<<< HEAD
+=======
+
+>>>>>>> ramo01
 # Distribution / packaging
 .Python
-*.txt
+token.txt
 *.json
 *.xlsx
 credentials.py
