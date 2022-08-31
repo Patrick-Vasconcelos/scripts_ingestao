@@ -71,7 +71,9 @@ class CrawlerConsulta(Crawler):
 
     
     def scrape(self, startDate : datetime.date, endDate : datetime.date, **kwargs) -> None:
-        self.driver = webdriver.Chrome(service=self.s)
+        self.option = Options()
+        self.option.add_argument("--headless")
+        self.driver = webdriver.Chrome(service=self.s, chrome_options=self.option)
         self.driver.maximize_window()
         self.driver.get(self.url)
         self._sendCredentials()
@@ -99,4 +101,10 @@ class CrawlerConsulta(Crawler):
         df['Valor(R$)'] = pd.to_numeric(df['Valor(R$)'])
 
         print("salvando dados da tabela.")
-        df.to_excel(f"../docs/consultas {startDate.strftime('%d/%m/%Y')}.xlsx", index = False)
+        df.to_excel(f'docs/consultas {startDate}.xlsx', index = False)
+        self.driver.close()
+        self.driver.switch_to.window(self.driver.window_handles[0])
+        self.timer()
+        self.driver.close()
+        self.driver.quit()
+        

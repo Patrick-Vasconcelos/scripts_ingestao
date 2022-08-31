@@ -16,6 +16,6 @@ from crawlers import Crawler
 
 
 crawler = CrawlerConsulta()
-Date = datetime.date(2022, 8, 29)
+Date = datetime.date(2022, 8, 30)
 # crawler.scrape(startDate=date.today() - timedelta(days=1),endDate=date.today() - timedelta(days=1))
 crawler.scrape(startDate=Date,endDate=Date)
