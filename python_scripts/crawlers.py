@@ -87,32 +87,16 @@ class CrawlerConsulta(Crawler):
         self.clicarXpath(xpath='//*[@id="containerFooter"]/div/div/a/span', msg='Clicando em gerar relatório')
         self.driver.switch_to.window(self.driver.window_handles[1])
         
-        df = pd.read_html(self.driver.page_source)
+        print("Buscando dados da tabela")
+        df = pd.read_html(self.driver.page_source)[0]
 
-        df.head()
-        
-        
-       
-        """
-        dados_consultas = []
-        site = bs(self.page_content, 'html.parser')
-        site = site.find('table')     
-        consultas = site.find_all('tr')
+        df.columns = df.iloc[1]
+        df.drop([1], inplace=True)
+        df.reset_index(drop = True)
+        df = df[df.Empresa == 'CLÍNICA QORPO - SAÚDE EM MOVIMENTO']
+        df.dropna(axis='columns', inplace=True)
+        df['Valor(R$)'] = df['Valor(R$)'].apply(lambda x: x[:-2] + '.' + x[-2:])
+        df['Valor(R$)'] = pd.to_numeric(df['Valor(R$)'])
 
-        for consulta in consultas:
-            rows = consulta.find_all('td')
-            for row in rows:
-                print(row.text)
-
-        
-        df = pd.DataFrame(columns= ['Empresa', 'Data de Registro' , 'Hora de Registro',
-                            'Data', 'Hora', 'Paciente', 'Carteirinha', 'CPF do Paciente',
-                            'Dmed gerado', 'Pagador', 'Executante', 'Solicitante', 'Qtde',
-                            'Procedimento', 'Grupo de Procedimento', 'Especialidade', 'Convênio',
-                            'Plano', 'Lote', 'Pagamento', 'N. Guia', 'Taxa do Cartão (R$(%))',
-                            'Recebido Bruto(R$)', 'Imposto(R$)', 'Recebido Líquido(R$)',
-                            'Tipo de Pagamento', 'Forma de Pagamento', 'Nota Fiscal', 'Valor(R$)',
-                            'Observação (Faturamento)', 'Observação (Pagamento)'])
-        for row in consulta.tbody.find_all('tr'):
-            columns = row.find_all('td')
-        """   
+        print("salvando dados da tabela.")
+        df.to_excel(f"../docs/consultas {startDate.strftime('%d/%m/%Y')}.xlsx", index = False)
