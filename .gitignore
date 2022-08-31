@@ -1,3 +1,10 @@
+# Personal
+token.txt
+credentials.py
+Agendamentos/
+*.xlsx
+docs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -6,17 +13,11 @@ __pycache__/
 # C extensions
 *.so
 jenkins_home/
-<<<<<<< HEAD
-=======
 
->>>>>>> ramo01
 # Distribution / packaging
 .Python
-token.txt
 *.json
-*.xlsx
-credentials.py
-Agendamentos/
+
 build/
 develop-eggs/
 dist/

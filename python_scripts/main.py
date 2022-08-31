@@ -18,4 +18,4 @@ from crawlers import Crawler
 crawler = CrawlerConsulta()
 Date = datetime.date(2022, 8, 29)
 # crawler.scrape(startDate=date.today() - timedelta(days=1),endDate=date.today() - timedelta(days=1))
-df = crawler.scrape(startDate=Date,endDate=Date)
+crawler.scrape(startDate=Date,endDate=Date)
