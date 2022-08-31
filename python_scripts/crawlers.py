@@ -1,10 +1,7 @@
 from abc import ABC
-from datetime import date, timedelta
-from operator import attrgetter
 import pandas as pd
 import datetime
 from selenium import webdriver
-from bs4 import BeautifulSoup as bs
 from selenium.webdriver.chrome.options import Options
 import time
 from selenium.webdriver.chrome.service import Service
