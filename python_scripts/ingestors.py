@@ -17,7 +17,7 @@ class DataIngestor(ABC):
 
         
 class AgendamentoIngestor(DataIngestor):
-    def __init__(self, writer: DataWriter, startDate: datetime.date = None , endDate: datetime.date = None, codEmpresa: str = 10177, page:str = 1, codProfissionais: str = None, **kwargs) -> None:
+    def __init__(self, writer, startDate: datetime.date = None , endDate: datetime.date = None, codEmpresa: str = 10177, page:str = 1, codProfissionais: str = None, **kwargs) -> None:
         super().__init__(writer, **kwargs)
         self.startDate = startDate
         self.endDate = endDate
@@ -31,8 +31,8 @@ class AgendamentoIngestor(DataIngestor):
         token = GetToken().get_token(username=username, password=password)
 
         while True:
-            self.page,pages,api = GetAgendamento().get_data(token=token, startDate=self.startDate, endDate=self.endDate, page=self.page, codProfissionais=self.codProfissionais)
-            self.writer(api='Agendamentos').write(api)
+            self.page,pages,data = GetAgendamento().get_data(token=token, startDate=self.startDate, endDate=self.endDate, page=self.page, codProfissionais=self.codProfissionais)
+            self.writer(api='Agendamentos').write(data)
 
             if self.page >= pages:
                 break
