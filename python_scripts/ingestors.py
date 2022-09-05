@@ -32,7 +32,7 @@ class AgendamentoIngestor(DataIngestor):
 
         while True:
             self.page,pages,data = GetAgendamento().get_data(token=token, startDate=self.startDate, endDate=self.endDate, page=self.page, codProfissionais=self.codProfissionais)
-            self.writer(api='Agendamentos').write(data)
+            self.writer(api='Agendamento').write(data)
 
             if self.page >= pages:
                 break
