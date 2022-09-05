@@ -1,4 +1,3 @@
-
 import datetime
 from datetime import date,timedelta
 import json
@@ -31,8 +30,10 @@ class DataWriter:
     
     def _write_to_file(self, data):
         if isinstance(data, dict):
-                self._write_row(json.dumps(data) + "\n")
+            print("DEBUG: entrou como dict")
+            self._write_row(json.dumps(data) + "\n")
         elif isinstance(data, list):
+            print("DEBUG: entrou como lista")
             for element in data:
                 self.write(element)
         else:
@@ -61,9 +62,9 @@ class DataWriter:
 class S3Writer(DataWriter):
     def __init__(self, api:str) -> None:
         super().__init__(api)
-        self.key = f"clinic_web/{self.api}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now()}.json"
         self.env = load_dotenv(r'C:\Users\Qorpo\.env')
-        self.tempfile = NamedTemporaryFile()
+        self.tempfile = NamedTemporaryFile(delete=False)
+        
         self.s3 =  boto3.client(
             's3',
             aws_access_key_id = getenv('AWS_ID'),
@@ -72,10 +73,23 @@ class S3Writer(DataWriter):
     def _write_row(self, row:str) -> None:
         with open(self.tempfile.name, "a") as f:
             f.write(row)
-    
+
     def write(self, data):
+        self.count = 1
+        self.key = f"clinic_web/{self.api}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now()}/{self.api}-{self.count}.json"
         self._write_to_file(data=data)
         self._write_file_to_s3()
+
+    def _write_to_file(self, data):
+        if isinstance(data, dict):
+            print("DEBUG: entrou como dict")
+            self._write_row(json.dumps(data) + "\n")
+        elif isinstance(data, list):
+            print("DEBUG: entrou como lista")
+            for element in data:
+                self.write(element)
+        else:
+            raise DataTypeNotSupportedForIngestionException(data)
 
     def _write_file_to_s3(self):
         self.s3.put_object(
