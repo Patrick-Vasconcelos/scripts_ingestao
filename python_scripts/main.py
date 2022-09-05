@@ -9,11 +9,11 @@ from writers import DataWriter
 from crawlers import Crawler
 
 
-agendamento_ingestor = AgendamentoIngestor(writer=S3Writer,startDate=date.today() - timedelta(days=1), endDate=date.today() - timedelta(days=1))
-agendamento_ingestor.ingest()
-
-# agendamento_ingestor = AgendamentoIngestor(writer=DataWriter,startDate=date.today() - timedelta(days=1), endDate=date.today())
+# agendamento_ingestor = AgendamentoIngestor(writer=S3Writer,startDate=date.today() - timedelta(days=1), endDate=date.today() - timedelta(days=1))
 # agendamento_ingestor.ingest()
+
+agendamento_ingestor = AgendamentoIngestor(writer=DataWriter,startDate=datetime.date(2022,1,1), endDate=datetime.date(2022,8,31))
+agendamento_ingestor.ingest()
 
 
 # crawler = CrawlerConsulta()
