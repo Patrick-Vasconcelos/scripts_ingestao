@@ -2,7 +2,9 @@ from abc import ABC
 from tempfile import NamedTemporaryFile
 import boto3
 import pandas as pd
+from dotenv import load_dotenv
 import datetime
+import os
 from os import getenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -61,15 +63,16 @@ class CrawlerConsulta(Crawler):
         super().__init__(**kwargs)
         self.type = "Consulta"
         self.tempfile = NamedTemporaryFile(delete=False)
+        self.env = load_dotenv(r'C:\Users\Qorpo\.env')
         self.s3 =  boto3.client(
             's3',
             aws_access_key_id = getenv('AWS_ID'),
             aws_secret_access_key = getenv('AWS_KEY')
         )
 
-    def _write_file_to_s3(self):
+    def write_file_to_s3(self):
         self.s3.put_object(
-            Body=self.tempfile,
+            Body="consultas.parquet",
             Bucket="qorpo-data-lake-raw",
             Key=self.key
         )    
@@ -78,6 +81,7 @@ class CrawlerConsulta(Crawler):
 
         self.startDate = startDate.strftime('%d/%m/%Y')
         self.endDate = startDate.strftime('%d/%m/%Y')
+        
         print(f"Consultando relatorio de consultas de {startDate} ate {endDate}")
 
         start_date = self.driver.find_element(By.NAME, 'de')
@@ -88,8 +92,16 @@ class CrawlerConsulta(Crawler):
         end_date.clear()
         end_date.send_keys(self.endDate)
 
-    def write(self, data, date):
-        self.key = f"clinic-web/{self.type}/extracted_at={datetime.datetime.now().date()}/Consultas-{date}.parquet"
+    def write(self, data):
+        self.key = f"clinic-web/{self.type}/extracted_at={datetime.datetime.now().date()}/Consultas-{datetime.date(2022, 8, 30)}.parquet"
+        data.to_parquet(r'.\python_scripts\consultas.parquet')
+        
+        self.write_file_to_s3()
+        
+        if os.path.exists(r'.\python_scripts\consultas.parquet'):
+            os.remove(r'.\python_scripts\consultas.parquet')
+        else:
+            pass
 
     
     def scrape(self, startDate : datetime.date, endDate : datetime.date, **kwargs) -> None:
@@ -123,7 +135,8 @@ class CrawlerConsulta(Crawler):
         df['Valor(R$)'] = pd.to_numeric(df['Valor(R$)'])
 
         print("salvando dados da tabela.")
-
-        df.to_parquet(f'docs/consultas {startDate}.parquet', index = False)
+        
+        self.write(df)
+        
         self.close()
         
