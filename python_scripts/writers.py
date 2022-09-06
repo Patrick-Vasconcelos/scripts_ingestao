@@ -74,18 +74,16 @@ class S3Writer(DataWriter):
         with open(self.tempfile.name, "a") as f:
             f.write(row)
 
-    def write(self, data):
+    def write(self, data) -> None:
         self.count = 1
-        self.key = f"clinic_web/{self.api}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now()}/{self.api}-{self.count}.json"
+        self.key = f"clinic-web/{self.api}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now()}/{self.api}-{self.count}.json"
         self._write_to_file(data=data)
         self._write_file_to_s3()
 
     def _write_to_file(self, data):
         if isinstance(data, dict):
-            print("DEBUG: entrou como dict")
             self._write_row(json.dumps(data) + "\n")
         elif isinstance(data, list):
-            print("DEBUG: entrou como lista")
             for element in data:
                 self.write(element)
         else:
