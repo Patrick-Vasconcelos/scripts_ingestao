@@ -1,6 +1,9 @@
 from abc import ABC
+from tempfile import NamedTemporaryFile
+import boto3
 import pandas as pd
 import datetime
+from os import getenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
@@ -23,6 +26,12 @@ class Crawler(ABC):
     def timer(self) -> None:
         time.sleep(5)
     
+    def close(self):
+        self.driver.close()
+        self.driver.switch_to.window(self.driver.window_handles[0])
+        self.timer()
+        self.driver.close()
+        self.driver.quit()
     
     def clicarXpath(self, xpath: str, msg : str = None) -> None:
 
@@ -50,6 +59,20 @@ class CrawlerConsulta(Crawler):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.type = "Consulta"
+        self.tempfile = NamedTemporaryFile(delete=False)
+        self.s3 =  boto3.client(
+            's3',
+            aws_access_key_id = getenv('AWS_ID'),
+            aws_secret_access_key = getenv('AWS_KEY')
+        )
+
+    def _write_file_to_s3(self):
+        self.s3.put_object(
+            Body=self.tempfile,
+            Bucket="qorpo-data-lake-raw",
+            Key=self.key
+        )    
 
     def sendDates(self,startDate : datetime.date, endDate: datetime.date) -> None:
 
@@ -65,6 +88,8 @@ class CrawlerConsulta(Crawler):
         end_date.clear()
         end_date.send_keys(self.endDate)
 
+    def write(self, data, date):
+        self.key = f"clinic-web/{self.type}/extracted_at={datetime.datetime.now().date()}/Consultas-{date}.parquet"
 
     
     def scrape(self, startDate : datetime.date, endDate : datetime.date, **kwargs) -> None:
@@ -98,10 +123,7 @@ class CrawlerConsulta(Crawler):
         df['Valor(R$)'] = pd.to_numeric(df['Valor(R$)'])
 
         print("salvando dados da tabela.")
-        df.to_excel(f'docs/consultas {startDate}.xlsx', index = False)
-        self.driver.close()
-        self.driver.switch_to.window(self.driver.window_handles[0])
-        self.timer()
-        self.driver.close()
-        self.driver.quit()
+
+        df.to_parquet(f'docs/consultas {startDate}.parquet', index = False)
+        self.close()
         
