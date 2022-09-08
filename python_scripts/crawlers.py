@@ -1,4 +1,5 @@
 from abc import ABC
+from operator import index
 from tempfile import NamedTemporaryFile
 import boto3
 import pandas as pd
@@ -13,27 +14,21 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from abc import abstractmethod
 from credentials import username, password
+from subprocess import CREATE_NO_WINDOW
 
 
 
 class Crawler(ABC):
     s = Service('C:/Users/Qorpo/.wdm/drivers/chromedriver/win32/chromedriver.exe')
+    s.creationflags = CREATE_NO_WINDOW
     
-
     def __init__(self, **kwargs) -> None:
         super().__init__()
         self.url = 'https://clinicweb.vitta.me/clinicweb/login.jsp'
     
     def timer(self) -> None:
         time.sleep(5)
-    
-    def close(self):
-        self.driver.close()
-        self.driver.switch_to.window(self.driver.window_handles[0])
-        self.timer()
-        self.driver.close()
-        self.driver.quit()
-    
+
     def clicarXpath(self, xpath: str, msg : str = None) -> None:
 
         if msg is None:
@@ -43,7 +38,6 @@ class Crawler(ABC):
         self.driver.find_element(By.XPATH, xpath).click()
         self.timer()
         
-
     def _sendCredentials(self) -> None:
         self.driver.find_element(By.NAME, 'login').send_keys(username)
         self.driver.find_element(By.NAME, 'senha').send_keys(password)
@@ -68,11 +62,13 @@ class CrawlerConsulta(Crawler):
         )
 
     def write_file_to_s3(self):
-        self.s3.put_object(
-            Body="Temp.parquet",
-            Bucket="qorpo-data-lake-raw",
-            Key=self.key
-        )    
+        with open('D:\ClinicWebAPI\scripts_ingestão\python_scripts\Temp.parquet', 'rb') as f:
+            data = f.read()
+            self.s3.put_object(
+                Body=data,
+                Bucket="qorpo-data-lake-raw",
+                Key=self.key
+            )    
 
     def sendDates(self,startDate : datetime.date, endDate: datetime.date) -> None:
         self.date = startDate
@@ -92,7 +88,7 @@ class CrawlerConsulta(Crawler):
 
     def write(self, data):
         self.key = f"clinic-web/{self.type}/extracted_at={datetime.datetime.now().date()}/Consultas-{self.date}.parquet"
-        data.to_parquet(r'D:\ClinicWebAPI\scripts_ingestão\python_scripts\Temp.parquet')
+        data.to_parquet(r'D:\ClinicWebAPI\scripts_ingestão\python_scripts\Temp.parquet', index=False)
         
         self.write_file_to_s3()
         
@@ -101,7 +97,6 @@ class CrawlerConsulta(Crawler):
         else:
             pass
 
-    
     def scrape(self, startDate : datetime.date, endDate : datetime.date, **kwargs) -> None:
         self.option = Options()
         self.option.add_argument("--headless")
@@ -136,5 +131,9 @@ class CrawlerConsulta(Crawler):
         
         self.write(df)
         
-        self.close()
+        self.driver.close()
+        self.driver.switch_to.window(self.driver.window_handles[0])
+        self.timer()
+        self.driver.close()
+        self.driver.quit()
         
