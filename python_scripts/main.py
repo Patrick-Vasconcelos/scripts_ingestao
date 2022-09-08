@@ -1,4 +1,3 @@
-
 from credentials import username, password
 import pandas as pd
 from datetime import timedelta,date
@@ -9,7 +8,7 @@ from crawlers import CrawlerConsulta
 from apis import GetToken
 from writers import S3Writer
 from writers import DataWriter
-from crawlers import Crawler
+
 
 # agendamento_ingestor = AgendamentoIngestor(writer=S3Writer,startDate=date.today() - timedelta(days=1), endDate=date.today() - timedelta(days=1))
 # agendamento_ingestor.ingest()
