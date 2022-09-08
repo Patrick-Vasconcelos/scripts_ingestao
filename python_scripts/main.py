@@ -18,6 +18,6 @@ from writers import DataWriter
 
 
 crawler = CrawlerConsulta()
-Date = datetime.date(2022, 8, 30)
+Date = datetime.date(2022, 9, 2)
 # crawler.scrape(startDate=date.today() - timedelta(days=1),endDate=date.today() - timedelta(days=1))
 crawler.scrape(startDate=Date,endDate=Date)
