@@ -17,7 +17,6 @@ from credentials import username, password
 
 
 class Crawler(ABC):
-
     s = Service('C:/Users/Qorpo/.wdm/drivers/chromedriver/win32/chromedriver.exe')
     
 
@@ -57,8 +56,6 @@ class Crawler(ABC):
         
 
 class CrawlerConsulta(Crawler):
-
-
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.type = "Consulta"
@@ -72,15 +69,16 @@ class CrawlerConsulta(Crawler):
 
     def write_file_to_s3(self):
         self.s3.put_object(
-            Body="consultas.parquet",
+            Body="Temp.parquet",
             Bucket="qorpo-data-lake-raw",
             Key=self.key
         )    
 
     def sendDates(self,startDate : datetime.date, endDate: datetime.date) -> None:
-
+        self.date = startDate
         self.startDate = startDate.strftime('%d/%m/%Y')
         self.endDate = startDate.strftime('%d/%m/%Y')
+        
         
         print(f"Consultando relatorio de consultas de {startDate} ate {endDate}")
 
@@ -93,13 +91,13 @@ class CrawlerConsulta(Crawler):
         end_date.send_keys(self.endDate)
 
     def write(self, data):
-        self.key = f"clinic-web/{self.type}/extracted_at={datetime.datetime.now().date()}/Consultas-{datetime.date(2022, 8, 30)}.parquet"
-        data.to_parquet(r'.\python_scripts\consultas.parquet')
+        self.key = f"clinic-web/{self.type}/extracted_at={datetime.datetime.now().date()}/Consultas-{self.date}.parquet"
+        data.to_parquet(r'D:\ClinicWebAPI\scripts_ingestão\python_scripts\Temp.parquet')
         
         self.write_file_to_s3()
         
-        if os.path.exists(r'.\python_scripts\consultas.parquet'):
-            os.remove(r'.\python_scripts\consultas.parquet')
+        if os.path.exists(r'D:\ClinicWebAPI\scripts_ingestão\python_scripts\Temp.parquet'):
+            os.remove(r'D:\ClinicWebAPI\scripts_ingestão\python_scripts\Temp.parquet')
         else:
             pass
 
@@ -134,7 +132,7 @@ class CrawlerConsulta(Crawler):
         df['Valor(R$)'] = df['Valor(R$)'].apply(lambda x: x[:-2] + '.' + x[-2:])
         df['Valor(R$)'] = pd.to_numeric(df['Valor(R$)'])
 
-        print("salvando dados da tabela.")
+        print("Salvando dados da tabela na Amazon s3.")
         
         self.write(df)
         
